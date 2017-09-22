@@ -9,6 +9,8 @@
 import RPi.GPIO as GPIO
 import time
 import os
+import pexpect # to automatically input password for scp
+import getpass
 
 # set BCM_GPIO 17(GPIO 0) as PIR pin
 PIRPinIn = 17
@@ -17,6 +19,15 @@ PIRPinOut = 16
 #BuzzerPin = 18
 
 IMAGE_NUM = 0
+
+#ryonai
+#print message to ask server to upload pictures
+#Reference: http://sweetme.at/2014/01/22/how-to-get-user-input-from-the-command-line-in-a-python-script/
+# Reference: https://stackoverflow.com/questions/250283/how-to-scp-in-python
+
+REMOTEHOST = raw_input("Please input server name: ")
+REMOTEADDRESS = raw_input("Please input server IP address: ")
+X = getpass.getpass("Server password: ")
 
 #print message at the begining ---custom function
 def print_message():
@@ -46,6 +57,8 @@ def setup():
 def main():
 
     global IMAGE_NUM
+    global REMOTEHOST
+    global REMOTEADDRESS
 
     #print info
     print_message()
@@ -98,12 +111,32 @@ def main():
 def capture(filename):
 
     global IMAGE_NUM
+    global REMOTEHOST
+    global REMOTEADDRESS
 
     time.sleep(1)
     cmd = "fswebcam -r 528x432 ./files/" + str(filename) + ".jpg" 
     os.system(cmd)  
 
+    start_scp(filename)
+
     IMAGE_NUM += 1         
+
+# Send picture to server by scp
+# Reference: https://github.com/pexpect/pexpect/blob/master/examples/ssh_tunnel.py 
+def start_scp(filename):
+    tunnel_command = "scp ./files/" + str(filename) + ".jpg " + REMOTEHOST + "@" + REMOTEADDRESS + ":~/lslab/original_images/"
+    
+    try:
+        scp_tunnel = pexpect.spawn(tunnel_command % globals())
+        scp_tunnel.expect('password:')
+        time.sleep(0.1)
+        scp_tunnel.sendline(X)
+        time.sleep(60)
+        scp_tunnel.expect (pexpect.EOF)
+
+    except Exception as e:
+        print(str(e))
 
 #define a destroy function for clean up everything after the script finished
 def destroy():
