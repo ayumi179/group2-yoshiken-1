@@ -1,5 +1,14 @@
+# ---------------------------------------------------------------------
+# modified : 2017/09/22
+# filename : watch.py
+# function : By running, 
+#           automatically detects file added to the folder from raspberry pi 
+#           execute yolo to detect person entered/exited
+#           crop detected region and save it as a new picture
+# Reference: Option1, https://askubuntu.com/questions/518457/autostart-program-whenever-a-file-is-added-to-a-folder
+# ---------------------------------------------------------------------
+
 #!/usr/bin/env python
-#Reference: Option1, https://askubuntu.com/questions/518457/autostart-program-whenever-a-file-is-added-to-a-folder
 
 import subprocess
 import time
